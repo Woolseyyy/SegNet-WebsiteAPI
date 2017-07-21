@@ -12,6 +12,7 @@ Also, you should make sure your server have at least one powerful gpu to do deep
 First, download this project and get some dependences
 ```
 git clone https://github.com/Woolseyyy/SegNet-WebsiteAPI.git
+cd SegNet-WebsiteAPI
 npm install
 ```
 Then, you should config some script files path in <i>utils/config.js</i>, you can read <a href="http://mi.eng.cam.ac.uk/projects/segnet/tutorial.html">segnet tutorial</a> to understand the scripts meaning.</br>
