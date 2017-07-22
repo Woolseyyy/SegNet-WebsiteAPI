@@ -3,10 +3,12 @@
  */
 $('document').ready(function () {
     $("#TestSubmit").click(function(){
-        var file = $("#TestData")[0].files[0];
+        var file = $("#TestData")[0].files;
         var formData = new FormData();
         formData.append("id", 0);
-        formData.append("files", file);
+        for(var i=0; i<file.length; i++){
+            formData.append("files", file[i]);
+        }
         $.ajax({
             url: "/api/test",
             type: "POST",

@@ -28,6 +28,76 @@ router.post('/test', function(req, res, next){
         if(err){
             console.log('parse error: ' + err);
         } else {
+
+            var rename = function(i, length, next){
+                if(i<length){
+                    var inputFile = files.files[i];
+                    var uploadedPath = inputFile.path;
+                    var dstPath = filePath+'/TempTestInterface/'+name+i+'.tig';
+                    fs.rename(uploadedPath, dstPath, function(err) {
+                        if(err){
+                            console.log('rename error: ' + err);
+                            next(err);
+                        } else {
+                            console.log('rename ok');
+                            rename(i+1, length, next);
+                        }
+                    });
+                }
+                else{
+                    next(null);
+                }
+            };
+
+            rename(0, files.files.length, function (err) {
+                if(err){
+                    //todo handle error
+                }
+                else{
+                    //create specific name.txt and name.prototxt
+                    var txtPath = filePath+'/TempTestInterface/'+name+'.txt';
+                    txtFactory(name, id, txtPath, files.files.length, function (err) {
+                        if(err){
+                            console.log('error when write' + name + '.txt!\n' + err);
+                        }
+                        else{
+                            var prototxtPath = filePath+'/TempTestInterface/'+name+'.prototxt';
+                            prototxtFactory(name, id, prototxtPath, function (err) {
+                                if(err){
+                                    console.log('error when write' + name + '.prototxt!\n' + err);
+                                }
+                                else{
+                                    //check if every thing is ok (especially check if all the files exit
+                                    //todo
+
+                                    //start test
+                                    var scritpPath = config.TestScritpPath;
+                                    var exec = require('child_process').exec;
+                                    var weightsPath = filePath+'/test_weights.caffemodel';
+                                    var num = 1;
+                                    exec('python '+ scritpPath + ' --model ' + prototxtPath + ' --weights ' + weightsPath + ' --iter '+ num,
+                                        function(error, stdout, stderr){
+                                            if(stdout==='ok'){
+                                                //todo send image
+                                            } else {
+                                                //todo send error
+                                            }
+                                            if(error) {
+                                                console.info('stderr : '+stderr);
+                                                //todo send error
+                                            }
+                                        }
+                                    );
+
+                                }
+
+                            });
+                        }
+                    });
+                }
+            });
+
+            /*
             var inputFile = files.files[0];
             var uploadedPath = inputFile.path;
             var dstPath = filePath+'/TempTestInterface/'+name+'.tig';
@@ -79,6 +149,7 @@ router.post('/test', function(req, res, next){
                     });
                 }
             });
+            */
         }
     });
 
