@@ -3,6 +3,7 @@
  */
 var path = require('path');
 var config = require('./config.js');
+var Model = require('../db/Model.js');
 
 var TrainingTask = {
     list: [],
@@ -10,8 +11,27 @@ var TrainingTask = {
     checking: false,
     add : function (id) {
         this.list.push(id);
-        this.reset();
-        this.check();
+
+        //update model state
+        Model.findOne({id:id}, function (err, model) {
+            if(err){
+                console.error('Error when update pid as 0 of model ' + id +' ! : ' + err);
+            }
+            else{
+                model.train.pid = 0;
+                model.save(function (err, model) {
+                    if(err){
+                        console.error('Error when update pid as 0 of model ' + id +' ! : ' + err);
+                    }
+                    else{
+                        //check if can be conducted now
+                        this.reset();
+                        this.check();
+                    }
+                }.bind(this))
+            }
+
+        }.bind(this));
     },
     check: function(){
         if(this.list.length>0 && !this.checking){
@@ -86,9 +106,23 @@ var TrainingTask = {
                     //todo handle the stdout
 
                     var pid = process.pid;
-                    //todo store the pid
-
-                    this.check();
+                    //store the pid
+                    Model.findOne({id:id}, function (err, model) {
+                        if(err){
+                            console.error('Error when store pid of model ' + id +' ! : ' + err);
+                        }
+                        else{
+                            model.train.pid = pid;
+                            model.save(function (err, model) {
+                                if(err){
+                                    console.error('Error when store pid of model ' + id +' ! : ' + err);
+                                }
+                                else{
+                                    this.check();
+                                }
+                            })
+                        }
+                    })
                 }
             }
         );
