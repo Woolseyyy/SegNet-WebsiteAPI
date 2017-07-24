@@ -193,8 +193,12 @@ router.post('/train/create', function (req, res, next) {
             pid:-1
         };
         Model.create({id:id, pwd:pwd, train:train}, function (err, model) {
-            if(err){
-                //todo handle error
+            if(err || model===null){
+                //handle error
+                res.json({
+                    code:500,
+                    msg:'Database error! Please retry or contact server admin!'
+                })
             }
             else{
                 //create directory
@@ -202,54 +206,101 @@ router.post('/train/create', function (req, res, next) {
                 var modelPath = rootPath+'/'+id;
                 fs.mkdir(modelPath, function (err) {
                     if(err){
-                        //todo handle err
+                        //handle err
                         console.error("error when create train model directory! "+ err);
+                        res.json({
+                            code:500,
+                            msg:'Filesystem error!Please retry or contact server admin!'
+                        })
                     }
                     else{
                         fs.mkdir(modelPath+'/TempTestInterface', function (err) {
                             if(err){
-                                //todo handle err
+                                //handle err
                                 console.error("error when create train model directory! "+ err);
+                                res.json({
+                                    code:500,
+                                    msg:'Filesystem error!Please retry or contact server admin!'
+                                })
                             }
                             else{
                                 fs.mkdir(modelPath+'/TempTestResult', function (err) {
                                     if(err){
-                                        //todo handle err
+                                        //handle err
                                         console.error("error when create train model directory! "+ err);
+                                        res.json({
+                                            code:500,
+                                            msg:'Filesystem error!Please retry or contact server admin!'
+                                        })
                                     }
                                     else {
                                         //create train directory
                                         fs.mkdir(modelPath+'/train', function (err) {
                                             if(err){
-                                                //todo handle err
+                                                //handle err
+                                                console.error("error when create train model directory! "+ err);
+                                                res.json({
+                                                    code:500,
+                                                    msg:'Filesystem error!Please retry or contact server admin!'
+                                                })
                                             }
                                             else{
                                                 fs.mkdir(modelPath+'/train/data', function (err) {
                                                     if(err){
-                                                        //todo handle err
+                                                        //handle err
+                                                        console.error("error when create train model directory! "+ err);
+                                                        res.json({
+                                                            code:500,
+                                                            msg:'Filesystem error!Please retry or contact server admin!'
+                                                        })
                                                     }
                                                     else{
                                                         fs.mkdir(modelPath+'/train/label', function (err) {
                                                             if(err){
-                                                                //todo handle err
+                                                                //handle err
+                                                                console.error("error when create train model directory! "+ err);
+                                                                res.json({
+                                                                    code:500,
+                                                                    msg:'Filesystem error!Please retry or contact server admin!'
+                                                                })
                                                             }
                                                             else{
                                                                 fs.mkdir(modelPath+'/train/result', function (err) {
                                                                     if(err){
-                                                                        //todo handle err
+                                                                        //handle err
+                                                                        console.error("error when create train model directory! "+ err);
+                                                                        res.json({
+                                                                            code:500,
+                                                                            msg:'Filesystem error!Please retry or contact server admin!'
+                                                                        })
                                                                     }
                                                                     else{
                                                                         solver_prototxt_factory(id, function (err) {
                                                                             if(err){
-                                                                                //todo handle err
+                                                                                //handle err
+                                                                                console.error("error when create train model directory! "+ err);
+                                                                                res.json({
+                                                                                    code:500,
+                                                                                    msg:'Filesystem error!Please retry or contact server admin!'
+                                                                                })
                                                                             }
                                                                             else{
                                                                                 train_prototxt_factory(id, function (err) {
                                                                                     if(err){
-                                                                                        //todo handle err
+                                                                                        //handle err
+                                                                                        console.error("error when create train model directory! "+ err);
+                                                                                        res.json({
+                                                                                            code:500,
+                                                                                            msg:'Filesystem error!Please retry or contact server admin!'
+                                                                                        })
                                                                                     }
                                                                                     else{
-                                                                                        //todo send success
+                                                                                        //send success
+                                                                                        res.json({
+                                                                                            code:200,
+                                                                                            msg:'ok',
+                                                                                            id:id
+                                                                                        })
                                                                                     }
                                                                                 })
                                                                             }
@@ -277,31 +328,47 @@ router.post('/train/create', function (req, res, next) {
 //upload train data, label, train.txt
 /* upload train data */
 router.post('/train/prepare/data', function (req, res, next) {
-    //todo authorization
 
     var form = new multiparty.Form({uploadDir:temp});
     form.parse(req, function(err, fields, files) {
-        var id = fields['id'][0];
-        var pwd = fields['pwd'][0];
+        if(err){
+            //console.error('Data upload error when parse request!'+err);
+            res.json({
+                code:400,
+                msg:'Error when parse request! Make sure you send me a multi part request! If you are on web developing, it should be formdata!'
+            })
+        }
+        else{
+            var id = fields['id'][0];
+            var pwd = fields['pwd'][0];
 
-        //find the model and check pwd
-        Model.findOne({id:id, pwd:pwd}, function (err, model) {
-            if(err){
-                //todo handle err
-            }
-            else if(model===null){
-                //todo handle error id or pwd
-            }
-            else if(!model.train.base){
-                //todo handle not train prepared
-            }
-            else{
-                var trainPath = path.resolve(__dirname, '../models/'+id+'/train');
-
+            //find the model and check pwd
+            Model.findOne({id:id, pwd:pwd}, function (err, model) {
                 if(err){
-                    console.log('parse error: ' + err);
-                    //todo handle error
-                } else {
+                    //handle err
+                    console.error("error when update data for model"+ id +"! "+ err);
+                    res.json({
+                        code:500,
+                        msg:'Database error!Please retry or contact server admin!'
+                    })
+                }
+                else if(model===null){
+                    //handle error : id or pwd error
+                    res.json({
+                        code:401,
+                        msg:'ID or password error!Please check and correct it!'
+                    })
+                }
+                else if(!model.train.base){
+                    //handle not train prepared
+                    res.json({
+                        code:412,
+                        msg:'You should create the model first!'
+                    })
+                }
+                else{
+                    var trainPath = path.resolve(__dirname, '../models/'+id+'/train');
+
                     var rename = function(i, length, next){
                         if(i<length){
                             var inputFile = files.files[i];
@@ -324,24 +391,39 @@ router.post('/train/prepare/data', function (req, res, next) {
 
                     rename(0, files.files.length, function (err) {
                         if(err){
-                            //todo handle error
+                            //handle error
+                            console.error('Error when upload data! Something goes wrong when move the file from temp to destination.\n'+err);
+                            res.json({
+                                code:500,
+                                msg:'Filesystem error! Please retry or contact server admin!'
+                            })
                         }
                         else{
                             //update the state
                             model.train.data = true;
                             model.save(function (err, model) {
                                 if(err){
-                                    //todo handle error
+                                    //handle error
+                                    console.error('Error when upload data! Something wrong with database when update the state of model.\n'+err);
+                                    res.json({
+                                        code:500,
+                                        msg:'Filesystem error! Please retry or contact server admin!'
+                                    })
                                 }
                                 else{
-                                    //todo send success response
+                                    //send success response
+                                    res.json({
+                                        code:200,
+                                        msg:'ok'
+                                    })
                                 }
                             })
                         }
                     })
+
                 }
-            }
-        });
+            });
+        }
 
     });
 });
@@ -349,31 +431,46 @@ router.post('/train/prepare/data', function (req, res, next) {
 /* upload labels */
 router.post('/train/prepare/label', function (req, res, next) {
 
-     //todo authorization
-
     var form = new multiparty.Form({uploadDir:temp});
     form.parse(req, function(err, fields, files) {
-        var id = fields['id'][0];
-        var pwd = fields['pwd'][0];
+        if(err){
+            //console.error('Data upload error when parse request!'+err);
+            res.json({
+                code:400,
+                msg:'Error when parse request! Make sure you send me a multi part request! If you are on web developing, it should be formdata!'
+            })
+        }
+        else{
+            var id = fields['id'][0];
+            var pwd = fields['pwd'][0];
 
-        //find the model and check pwd
-        Model.findOne({id:id, pwd:pwd}, function (err, model) {
-            if (err) {
-                //todo handle err
-            }
-            else if (model === null) {
-                //todo handle error id or pwd
-            }
-            else if (!model.train.base) {
-                //todo handle not train prepared
-            }
-            else {
-                var trainPath = path.resolve(__dirname, '../models/'+id+'/train');
+            //find the model and check pwd
+            Model.findOne({id:id, pwd:pwd}, function (err, model) {
+                if (err) {
+                    //handle err
+                    console.error("error when update data for model"+ id +"! "+ err);
+                    res.json({
+                        code:500,
+                        msg:'Database error!Please retry or contact server admin!'
+                    })
+                }
+                else if(model===null){
+                    //handle error : id or pwd error
+                    res.json({
+                        code:401,
+                        msg:'ID or password error!Please check and correct it!'
+                    })
+                }
+                else if(!model.train.base){
+                    //handle not train prepared
+                    res.json({
+                        code:412,
+                        msg:'You should create the model first!'
+                    })
+                }
+                else {
+                    var trainPath = path.resolve(__dirname, '../models/'+id+'/train');
 
-                if(err){
-                    console.log('parse error: ' + err);
-                    //todo handle error
-                } else {
                     var rename = function(i, length, next){
                         if(i<length){
                             var inputFile = files.files[i];
@@ -396,79 +493,124 @@ router.post('/train/prepare/label', function (req, res, next) {
 
                     rename(0, files.files.length, function (err) {
                         if(err){
-                            //todo handle error
+                            //handle error
+                            console.error('Error when upload label! Something goes wrong when move the file from temp to destination.\n'+err);
+                            res.json({
+                                code:500,
+                                msg:'Filesystem error! Please retry or contact server admin!'
+                            })
                         }
                         else{
                             //update the state
                             model.train.label = true;
                             model.save(function (err, model) {
                                 if(err){
-                                    //todo handle error
+                                    //handle error
+                                    console.error('Error when upload label! Something wrong with database when update the state of model.\n'+err);
+                                    res.json({
+                                        code:500,
+                                        msg:'Filesystem error! Please retry or contact server admin!'
+                                    })
                                 }
                                 else{
-                                    //todo send success response
+                                    //send success response
+                                    res.json({
+                                        code:200,
+                                        msg:'ok'
+                                    })
                                 }
                             })
                         }
                     })
                 }
-            }
-        });
+            });
+        }
     });
 });
 
 /* upload train train.txt */
 router.post('/train/prepare/relation', function (req, res, next) {
 
-    //todo authorization
-
     var form = new multiparty.Form({uploadDir: temp});
     form.parse(req, function(err, fields, files) {
-        var id = fields['id'][0];
-        var pwd = fields['pwd'][0];
+        if(err){
+            //console.error('Data upload error when parse request!'+err);
+            res.json({
+                code:400,
+                msg:'Error when parse request! Make sure you send me a multi part request! If you are on web developing, it should be formdata!'
+            })
+        }
+        else{
+            var id = fields['id'][0];
+            var pwd = fields['pwd'][0];
 
-        //find the model and check pwd
-        Model.findOne({id:id, pwd:pwd}, function (err, model) {
-            if (err) {
-                //todo handle err
-            }
-            else if (model === null) {
-                //todo handle error id or pwd
-            }
-            else if (!model.train.base) {
-                //todo handle not train prepared
-            }
-            else {
-                var trainPath = path.resolve(__dirname, '../models/'+id+'/train');
-
-                if(err){
-                    console.log('parse error: ' + err);
-                    //todo handle error
-                } else {
+            //find the model and check pwd
+            Model.findOne({id:id, pwd:pwd}, function (err, model) {
+                if (err) {
+                    //handle err
+                    console.error("error when find model"+ id +"! "+ err);
+                    res.json({
+                        code:500,
+                        msg:'Database error!Please retry or contact server admin!'
+                    })
+                }
+                else if(model===null){
+                    //handle error : id or pwd error
+                    res.json({
+                        code:401,
+                        msg:'ID or password error!Please check and correct it!'
+                    })
+                }
+                else if(!model.train.base){
+                    //handle not train prepared
+                    res.json({
+                        code:412,
+                        msg:'You should create the model first!'
+                    })
+                }
+                else {
+                    var trainPath = path.resolve(__dirname, '../models/'+id+'/train');
 
                     var inputFile = files.files[0];
                     var uploadedPath = inputFile.path;
                     var dstPath = trainPath+'/train.txt';
                     fs.rename(uploadedPath, dstPath, function(err) {
                         if(err){
-                            console.log('rename error: ' + err);
-                            //todo handle error
+                            //handle error
+                            console.error('Error when upload train relation! Something goes wrong when move the file from temp to destination.\n'+err);
+                            res.json({
+                                code:500,
+                                msg:'Filesystem error! Please retry or contact server admin!'
+                            })
                         } else {
                             var data = trainPath + '/data';
                             var label = trainPath + '/label';
                             train_txt_modify(data, label, dstPath, function (err) {
                                 if(err){
-                                    //todo handle error
+                                    console.log('Error when upload train relation! Something wrong when modify the text.\n'+err);
+                                    res.json({
+                                        code:500,
+                                        msg:'Filesystem error! Please retry or contact server admin!'
+                                    })
                                 }
                                 else{
                                     //update the state
                                     model.train.relation = true;
                                     model.save(function (err, model) {
                                         if(err){
-                                            //todo handle error
+                                            //handle error
+                                            console.error('Error when upload train relation! Something wrong with database when update the state of model.\n'+err);
+                                            res.json({
+                                                code:500,
+                                                msg:'Filesystem error! Please retry or contact server admin!'
+                                            })
                                         }
                                         else{
-                                            //todo send success response
+                                            //send success response
+                                            res.json({
+                                                code:200,
+                                                msg:'ok'
+                                            })
                                         }
                                     })
                                 }
@@ -476,32 +618,47 @@ router.post('/train/prepare/relation', function (req, res, next) {
                         }
                     });
                 }
-            }
-        });
+            });
+        }
     });
 });
 
 /* start training */
 router.post('/train/run', function(req, res, next){
-    //todo authorization
 
     var id = req.body.id;
     var pwd = req.body.pwd;
 
     Model.findOne({id:id, pwd:pwd}, function (err, model) {
         if(err){
-            //todo handle error
+            //handle err
+            console.error("error when find model"+ id +"! "+ err);
+            res.json({
+                code:500,
+                msg:'Database error!Please retry or contact server admin!'
+            })
+        }
+        else if(model===null){
+            //handle error : id or pwd error
+            res.json({
+                code:401,
+                msg:'ID or password error!Please check and correct it!'
+            })
         }
         else if(model.train.data && model.train.label && model.train.relation){
             //check if running
             if(model.train.pid===-1){
                 TrainingTask.add(id);
-                //todo response
+                //response
+                res.json({
+                    code:200,
+                    msg:'ok'
+                })
             }
             else if(model.train.pid === 0){
                 res.json({
                     code:204,
-                    msg:'The training task has been put into queue!'
+                    msg:'Don`t need to ask me agin! The training task has been put into queue!'
                 })
             }
             else if(model.train.pid > 0){
@@ -527,41 +684,108 @@ router.post('/train/procedure', function (req, res, next) {
     var id = req.body.id;
     var range = req.body['range[]'];
 
-    //todo authorization
+    //check the state of models
+    Model.findOne({id:id}, function (err, model) {
+        if(err){
+            console.log('Something goes wrong when get training procedure!Database error:'+err);
+            res.json({
+                code:500,
+                msg:'Database error!Please retry or contact server admin!'
+            })
+        }
+        else{
+            if(model===null){
+                res.json({
+                    code:404,
+                    msg:'I can`t find the model! Please check id!'
+                });
+            }
+            else if(model.pid===-1){
+                res.json({
+                    code:412,
+                    msg:'The model hasn`t been requested to train. Please start training first!'
+                })
+            }
+            else if(model.pid===0){
+                res.json({
+                    code:412,
+                    msg:'The model is in queue but hasn`t been training yet. Please wait for a while and retry!'
+                })
+            }
+            else{
+                //return procedure of the page
+                if(range[0] && range[1] && (range[1]===-1||range[1]>range[0])){
+                    range[0] = Math.floor(range[0] / 20)*20;
+                    range[1] = Math.ceil(range[1] / 20)*20;
 
-    //return procedure of the page
-    if(range[0] && range[1] && range[1]>range[0]){
-        range[0] = Math.floor(range[0] / 20)*20;
-        range[1] = Math.ceil(range[1] / 20)*20;
+                    var filePath = path.resolve(__dirname, '../models') + '/' + id + '/train/trainingProcedure.txt';
+                    var exec = require('child_process').exec;
+                    if(range[0]>=0 || (range[0]===-1 && range[1]!==-1)){
 
-        var filePath = path.resolve(__dirname, '../models') + '/' + id + '/train/trainingProcedure.txt';
-        var exec = require('child_process').exec;
-        if(range[0]>=0){
-            exec('grep \'Iteration ' +range[0]+', loss = \' -n '+filePath,
-                function(error, stdout, stderr){
-                    if(error) {
-                        console.info('stderr : '+stderr);
-                        //send error
-                        //todo
-                    }
-                    else if (stdout.length>0){
-                        var begin = stdout.split(':')[0];
-                        if(range[1]>0 && range[1]>range[0]){
-                            exec('grep \'Iteration ' +range[1]+', lr = \' -n '+filePath,
-                                function(error, stdout, stderr){
-                                    if(error) {
-                                        console.info('stderr : '+stderr);
-                                        //send error
-                                        //todo
-                                    }
-                                    else if (stdout.length>0){
-                                        var end = stdout.split(':')[0];
-                                        exec('sed -n \''+begin+', '+end+'p\' '+filePath,
+                        if(range[1]!==-1 && range[0]===-1){
+                            range[0] = range[1] - 10;
+                            if(range[0]<0){
+                                range[0] = 0;
+                            }
+                        }
+
+                        exec('grep \'Iteration ' +range[0]+', loss = \' -n '+filePath,
+                            function(error, stdout, stderr){
+                                if(error) {
+                                    console.info('stderr : '+stderr);
+                                    //send error
+                                    res.json({
+                                        code:500,
+                                        msg:'Filesystem error! Please retry or contact server admin!'
+                                    })
+                                }
+                                else if (stdout.length>0){
+                                    var begin = stdout.split(':')[0];
+                                    if(range[1]>0 && range[1]>range[0]){
+                                        exec('grep \'Iteration ' +range[1]+', lr = \' -n '+filePath,
                                             function(error, stdout, stderr){
                                                 if(error) {
                                                     console.info('stderr : '+stderr);
                                                     //send error
-                                                    //todo
+                                                    res.json({
+                                                        code:500,
+                                                        msg:'Filesystem error! Please retry or contact server admin!'
+                                                    })
+                                                }
+                                                else if (stdout.length>0){
+                                                    var end = stdout.split(':')[0];
+                                                    exec('sed -n \''+begin+', '+end+'p\' '+filePath,
+                                                        function(error, stdout, stderr){
+                                                            if(error) {
+                                                                console.info('stderr : '+stderr);
+                                                                //send error
+                                                                res.json({
+                                                                    code:500,
+                                                                    msg:'Filesystem error! Please retry or contact server admin!'
+                                                                })
+                                                            }
+                                                            else if (stdout.length>0){
+                                                                //send result
+                                                                res.json({
+                                                                    result:stdout
+                                                                })
+                                                            }
+                                                        }
+                                                    );
+                                                }
+                                            }
+                                        );
+                                    }
+                                    else if(range[1]===-1){
+                                        exec('more +'+begin+' '+filePath,
+                                            function(error, stdout, stderr){
+                                                if(error) {
+                                                    console.info('stderr : '+stderr);
+                                                    //send error
+                                                    res.json({
+                                                        code:500,
+                                                        msg:'Filesystem error! Please retry or contact server admin!'
+                                                    })
                                                 }
                                                 else if (stdout.length>0){
                                                     //send result
@@ -572,43 +796,58 @@ router.post('/train/procedure', function (req, res, next) {
                                             }
                                         );
                                     }
-                                }
-                            );
-                        }
-                        else if(range[1]===-1){
-                            exec('more +'+begin+' '+filePath,
-                                function(error, stdout, stderr){
-                                    if(error) {
-                                        console.info('stderr : '+stderr);
-                                        //send error
-                                        //todo
-                                    }
-                                    else if (stdout.length>0){
-                                        //send result
+                                    else{
+                                        //handle error
                                         res.json({
-                                            result:stdout
+                                            code:416,
+                                            msg:'Range[1] is beyond range! If you want to access latest result, you should give me range[1]=-1!'
                                         })
                                     }
                                 }
-                            );
-                        }
-                        else{
-                            //todo handle error
-                        }
+                                else {
+                                    //handle error
+                                    res.json({
+                                        code:416,
+                                        msg:'Range[0] is beyond range! I can`t find the result of range[0]!'
+                                    })
+                                }
+                            }
+                        );
                     }
-                    else {
-                        //todo handle error
+                    else if(range[0]===-1 && range[-1]===-1) {
+                        //find the latest 10 results
+                        exec('less -n  '+16*10+ ''+filePath,
+                            function(error, stdout, stderr){
+                                if(error) {
+                                    console.info('stderr : '+stderr);
+                                    //send error
+                                    res.json({
+                                        code:500,
+                                        msg:'Filesystem error! Please retry or contact server admin!'
+                                    })
+                                }
+                                else if (stdout.length>0){
+                                    //send result
+                                    res.json({
+                                        code:200,
+                                        msg:'ok',
+                                        result:stdout
+                                    })
+                                }
+                            }
+                        );
                     }
                 }
-            );
+                else{
+                    //handle error
+                    res.json({
+                        code:416,
+                        msg:'Range[1] should be -1 or larger than range[0]! And make sure you give me range[0] and range[1]!'
+                    })
+                }
+            }
         }
-        else{
-            //todo handle error
-        }
-    }
-    else{
-        //todo handle error
-    }
+    })
 });
 
 /*stop training*/
@@ -618,7 +857,19 @@ router.post('/train/stop', function(req,res,next){
 
     Model.findOne({id:id, pwd:pwd}, function (err, model) {
         if(err){
-            //todo handle err
+            //handle err
+            console.error("error when find model"+ id +"! "+ err);
+            res.json({
+                code:500,
+                msg:'Database error!Please retry or contact server admin!'
+            })
+        }
+        else if(model===null){
+            //handle error : id or pwd error
+            res.json({
+                code:401,
+                msg:'ID or password error!Please check and correct it!'
+            })
         }
         else{
             var pid = model.train.pid;
@@ -630,10 +881,27 @@ router.post('/train/stop', function(req,res,next){
                         if(error) {
                             console.info('stderr : '+stderr);
                             //send error
-                            //todo
+                            res.json({
+                                code:500,
+                                msg:'Something wrong when killing the procedure!'+err
+                            })
                         }
                         else{
-                            //todo handle the stdout
+                            model.pid = -1;
+                            model.save(function (err, model) {
+                               if(err){
+                                   res.json({
+                                       code:500,
+                                       msg:'Database error!Please retry or contact server admin!'
+                                   })
+                               }
+                               else{
+                                   res.json({
+                                       code:200,
+                                       msg:'ok'
+                                   })
+                               }
+                            });
                         }
                     }
                 );
@@ -656,11 +924,24 @@ router.post('/train/finish', function(req, res, next){
 
     Model.findOne({id:id, pwd:pwd}, function (err, model) {
         if(err){
-            //todo handle err
+            //handle err
+            console.error("error when find model"+ id +"! "+ err);
+            res.json({
+                code:500,
+                msg:'Database error!Please retry or contact server admin!'
+            })
+        }
+        else if(model===null){
+            //handle error : id or pwd error
+            res.json({
+                code:401,
+                msg:'ID or password error!Please check and correct it!'
+            })
         }
         else{
-            var iter_t = req.body.iter_t;
             var iter = req.body.iter;
+            var iter_t = iter/1000;
+            iter = iter%1000;
             var trainPath = path.resolve(__dirname, '../models') + '/' + id + '/train/';
             var trainprotxtPath = trainPath+'/segnet_train.prototxt';
             var caffemodelPath = trainPath+'/result/segnet_iter_'+iter_t+'.caffemodel ';
@@ -671,19 +952,28 @@ router.post('/train/finish', function(req, res, next){
                     if(error) {
                         console.info('stderr : '+stderr);
                         //send error
-                        //todo
+                        res.json({
+                            code:500,
+                            msg:'Something error!Please retry or contact server admin!'
+                        })
                     }
                     else{
-                        //todo handle the stdout
                         //store the iter and update the state
                         model.test.ready = true;
                         model.test.iter = iter;
                         model.save(function (err, model) {
                             if(err){
-                                //todo handle err
+                                res.json({
+                                    code:500,
+                                    msg:'Database error!Please retry or contact server admin!'
+                                })
                             }
                             else{
-                                //todo response success
+                                //response success
+                                res.json({
+                                    code:200,
+                                    msg:'ok'
+                                })
                             }
                         })
                     }
@@ -701,7 +991,19 @@ router.post('/train/clear', function(req, res, next){
 
     Model.findOne({id:id, pwd:pwd}, function(err, model){
         if(err){
-            //todo handle err
+            //handle err
+            console.error("error when find model"+ id +"! "+ err);
+            res.json({
+                code:500,
+                msg:'Database error!Please retry or contact server admin!'
+            })
+        }
+        else if(model===null){
+            //handle error : id or pwd error
+            res.json({
+                code:401,
+                msg:'ID or password error!Please check and correct it!'
+            })
         }
         else{
             //clear training directory
@@ -713,42 +1015,73 @@ router.post('/train/clear', function(req, res, next){
                 function(error, stdout, stderr){
                     if(error) {
                         console.info('stderr : '+stderr);
-                        //send error
-                        //todo
+                        //handle error
+                        res.json({
+                            code:500,
+                            msg:'Filesystem error! Please retry or contact server admin!'
+                        })
                     }
                     else{
                         //create new train directory
                         fs.mkdir(modelPath+'/train', function (err) {
                             if(err){
-                                //todo handle err
+                                //handle error
+                                res.json({
+                                    code:500,
+                                    msg:'Filesystem error! Please retry or contact server admin!'
+                                })
                             }
                             else{
                                 fs.mkdir(modelPath+'/train/data', function (err) {
                                     if(err){
-                                        //todo handle err
+                                        //handle error
+                                        res.json({
+                                            code:500,
+                                            msg:'Filesystem error! Please retry or contact server admin!'
+                                        })
                                     }
                                     else{
                                         fs.mkdir(modelPath+'/train/label', function (err) {
                                             if(err){
-                                                //todo handle err
+                                                //handle error
+                                                res.json({
+                                                    code:500,
+                                                    msg:'Filesystem error! Please retry or contact server admin!'
+                                                })
                                             }
                                             else{
                                                 fs.mkdir(modelPath+'/train/result', function (err) {
                                                     if(err){
-                                                        //todo handle err
+                                                        //handle error
+                                                        res.json({
+                                                            code:500,
+                                                            msg:'Filesystem error! Please retry or contact server admin!'
+                                                        })
                                                     }
                                                     else{
                                                         solver_prototxt_factory(id, function (err) {
                                                             if(err){
-                                                                //todo handle err
+                                                                //handle error
+                                                                res.json({
+                                                                    code:500,
+                                                                    msg:'Filesystem error! Please retry or contact server admin!'
+                                                                })
                                                             }
                                                             else{
                                                                 train_prototxt_factory(id, function (err) {
                                                                     if(err){
-                                                                        //todo handle err
+                                                                        //handle error
+                                                                        res.json({
+                                                                            code:500,
+                                                                            msg:'Filesystem error! Please retry or contact server admin!'
+                                                                        })
                                                                     }
                                                                     else{
-                                                                        //todo send success
+                                                                        //send success
+                                                                        res.json({
+                                                                            code:200,
+                                                                            msg:'ok'
+                                                                        })
                                                                     }
                                                                 })
                                                             }

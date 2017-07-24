@@ -17,8 +17,10 @@
     </div>
     <div>
       <h2>Create New Train Models</h2>
-      <input type="text" id="NewTrainID" placeholder="give me the id of model">
-      <input type="text" id="NewTrainPWD" placeholder="password of model">
+      <input type="password" id="NewTrainPWD" placeholder="password of model">
+      <input type="password" id="NewTrainPWDConfirm" placeholder="confirm the password">
+      <input type="text" id="NewTrainUsername" placeholder="user name">
+      <input type="password" id="NewTrainUserpwd" placeholder="user password">
       <button id="NewTrainSubmit">Submit</button>
     </div>
     <div>
@@ -60,6 +62,13 @@
       <input type="text" id="Range0" placeholder="the start iter number">
       <input type="text" id="Range1" placeholder="the end iter number">
       <button id="GetTrainSubmit">Submit</button>
+    </div>
+    <div>
+      <h2>Finish training</h2>
+      <input type="text" id="FinishTrainID" placeholder="give me the id of model">
+      <input type="text" id="FinishTrainPWD" placeholder="password of model">
+      <input type="text" id="FinishTrainIter" placeholder="The iteration number whose weight you want to use">
+      <button id="FinishTrainSubmit">Submit</button>
     </div>
     <div>
       <h2>Clear Train Datas</h2>

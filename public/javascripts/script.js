@@ -19,14 +19,16 @@ $('document').ready(function () {
     });
 
     $("#NewTrainSubmit").click(function () {
-        var id = $("#NewTrainID")[0].value;
         var pwd = $("#NewTrainPWD")[0].value;
+        var username = $("#NewTrainUsername")[0].value;
+        var userpwd = $("#NewTrainUserpwd")[0].value;
         $.ajax({
             url: "/api/train/create",
             type: "POST",
             data: {
-                id:id,
-                pwd:pwd
+                pwd:pwd,
+                username:username,
+                userpwd:userpwd
             }
         });
     });
@@ -129,6 +131,20 @@ $('document').ready(function () {
             },
             success: function (res) {
                 console.log(res.result);
+            }
+        });
+    });
+    $("#FinishTrainSubmit").click(function () {
+        var id = $("#FinishTrainID")[0].value;
+        var pwd = $("#FinishTrainPWD")[0].value;
+        var iter = $("#FinishTrainIter")[0].value;
+        $.ajax({
+            url: "/api/train/stop",
+            type: "POST",
+            data: {
+                id:id,
+                pwd:pwd,
+                iter: iter
             }
         });
     });

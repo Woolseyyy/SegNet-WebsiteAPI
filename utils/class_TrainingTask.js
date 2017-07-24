@@ -58,7 +58,7 @@ var TrainingTask = {
                             gpus.push(gpu);
                         }
                         else{
-                            console.console("Some error happens when parse gpu!\nline: " + i + "\n"+stdout);
+                            console.error("Some error happens when parse gpu!\nline: " + i + "\n"+stdout);
                         }
                     }
 
