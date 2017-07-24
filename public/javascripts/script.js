@@ -14,7 +14,11 @@ $('document').ready(function () {
             type: "POST",
             data: formData,
             processData: false,
-            contentType: false
+            contentType: false,
+            success:function (res) {
+                console.log(res);
+                alert(JSON.stringify(res));
+            }
         });
     });
 
@@ -29,6 +33,10 @@ $('document').ready(function () {
                 pwd:pwd,
                 username:username,
                 userpwd:userpwd
+            },
+            success:function (res) {
+                console.log(res);
+                alert(JSON.stringify(res));
             }
         });
     });
@@ -48,7 +56,11 @@ $('document').ready(function () {
             type: "POST",
             data: formData,
             processData: false,
-            contentType: false
+            contentType:false,
+            success:function (res) {
+                console.log(res);
+                alert(JSON.stringify(res));
+            }
         });
     });
 
@@ -67,7 +79,11 @@ $('document').ready(function () {
             type: "POST",
             data: formData,
             processData: false,
-            contentType: false
+            contentType: false,
+            success:function (res) {
+                console.log(res);
+                alert(JSON.stringify(res));
+            }
         });
     });
 
@@ -84,7 +100,11 @@ $('document').ready(function () {
             type: "POST",
             data: formData,
             processData: false,
-            contentType: false
+            contentType: false,
+            success:function (res) {
+                console.log(res);
+                alert(JSON.stringify(res));
+            }
         });
     });
     $("#StartTrainSubmit").click(function () {
@@ -96,6 +116,10 @@ $('document').ready(function () {
             data: {
                 id:id,
                 pwd:pwd
+            },
+            success:function (res) {
+                console.log(res);
+                alert(JSON.stringify(res));
             }
         });
     });
@@ -108,6 +132,10 @@ $('document').ready(function () {
             data: {
                 id:id,
                 pwd:pwd
+            },
+            success:function (res) {
+                console.log(res);
+                alert(JSON.stringify(res));
             }
         });
     });
@@ -129,8 +157,9 @@ $('document').ready(function () {
                 id:id,
                 range: range
             },
-            success: function (res) {
-                console.log(res.result);
+            success:function (res) {
+                console.log(res);
+                alert(JSON.stringify(res));
             }
         });
     });
@@ -145,6 +174,10 @@ $('document').ready(function () {
                 id:id,
                 pwd:pwd,
                 iter: iter
+            },
+            success:function (res) {
+                console.log(res);
+                alert(JSON.stringify(res));
             }
         });
     });
@@ -157,6 +190,10 @@ $('document').ready(function () {
             data: {
                 id:id,
                 pwd:pwd
+            },
+            success:function (res) {
+                console.log(res);
+                alert(JSON.stringify(res));
             }
         });
     });
