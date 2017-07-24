@@ -46,7 +46,7 @@ var TrainingTask = {
                     //parse the text
                     var lines = stdout.split('\n');
                     var gpus = [];
-                    for(var i=7; i<lines.length-8; i+=3){
+                    for(var i=7; i<7+3*config.GPUNumber; i+=3){
                         var temp = lines[i+1].split('|');
                         if(temp[2]){
                             temp = temp[2].split('/');
@@ -58,7 +58,7 @@ var TrainingTask = {
                             gpus.push(gpu);
                         }
                         else{
-                            console.err("Some error happens when parse gpu!\nline: " + i + "\n"+stdout);
+                            console.console("Some error happens when parse gpu!\nline: " + i + "\n"+stdout);
                         }
                     }
 
