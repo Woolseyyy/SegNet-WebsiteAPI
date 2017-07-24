@@ -40,6 +40,8 @@ app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: false }));
 app.use(cookieParser());
 app.use(express.static(path.join(__dirname, 'public')));
+/*access any files in models*/
+app.use('/models', express.static(path.join(__dirname, 'models')));
 
 app.use('/', index);
 app.use('/api', api);
