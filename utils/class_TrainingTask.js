@@ -128,7 +128,7 @@ var TrainingTask = {
         );
     },
     run: function () {
-        setInterval(this.check, 60*60*1000);
+        setInterval(this.check.bind(this), 60*60*1000);
     },
     stop: function(){
         if(this.checkPid){
