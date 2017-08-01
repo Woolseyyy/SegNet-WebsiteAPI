@@ -683,6 +683,8 @@ router.post('/train/run', function(req, res, next){
 router.post('/train/procedure', function (req, res, next) {
     var id = req.body.id;
     var range = req.body['range[]'];
+    range[0] = Number(range[0]);
+    range[1] = Number(range[1]);
 
     //check the state of models
     Model.findOne({id:id}, function (err, model) {
@@ -700,13 +702,13 @@ router.post('/train/procedure', function (req, res, next) {
                     msg:'I can`t find the model! Please check id!'
                 });
             }
-            else if(model.pid===-1){
+            else if(model.train.pid===-1 && false){
                 res.json({
                     code:412,
                     msg:'The model hasn`t been requested to train. Please start training first!'
                 })
             }
-            else if(model.pid===0){
+            else if(model.train.pid===0 && false){
                 res.json({
                     code:412,
                     msg:'The model is in queue but hasn`t been training yet. Please wait for a while and retry!'
@@ -714,10 +716,13 @@ router.post('/train/procedure', function (req, res, next) {
             }
             else{
                 //return procedure of the page
-                if(range[0] && range[1] && (range[1]===-1||range[1]>range[0])){
-                    range[0] = Math.floor(range[0] / 20)*20;
-                    range[1] = Math.ceil(range[1] / 20)*20;
-
+                if(range[0]!==null && range[1]!==null && (range[1]===-1||range[1]>range[0])){
+                    if(range[0]!==-1){
+                        range[0] = Math.floor(range[0] / 20)*20;
+                    }
+                    if(range[1]!==-1){
+                        range[1] = Math.ceil(range[1] / 20)*20;
+                    }
                     var filePath = path.resolve(__dirname, '../models') + '/' + id + '/train/trainingProcedure.txt';
                     var exec = require('child_process').exec;
                     if(range[0]>=0 || (range[0]===-1 && range[1]!==-1)){
@@ -767,6 +772,7 @@ router.post('/train/procedure', function (req, res, next) {
                                                             else if (stdout.length>0){
                                                                 //send result
                                                                 res.json({
+                                                                    code:200,
                                                                     result:stdout
                                                                 })
                                                             }
@@ -790,6 +796,7 @@ router.post('/train/procedure', function (req, res, next) {
                                                 else if (stdout.length>0){
                                                     //send result
                                                     res.json({
+                                                        code:200,
                                                         result:stdout
                                                     })
                                                 }
@@ -814,9 +821,9 @@ router.post('/train/procedure', function (req, res, next) {
                             }
                         );
                     }
-                    else if(range[0]===-1 && range[-1]===-1) {
-                        //find the latest 10 results
-                        exec('less -n  '+16*10+ ''+filePath,
+                    else if(range[0]===-1 && range[1]===-1) {
+                        //find the latest 3 results
+                        exec('tail -n  '+16*3+ ' '+filePath,
                             function(error, stdout, stderr){
                                 if(error) {
                                     console.info('stderr : '+stderr);
@@ -887,7 +894,7 @@ router.post('/train/stop', function(req,res,next){
                             })
                         }
                         else{
-                            model.pid = -1;
+                            model.train.pid = -1;
                             model.save(function (err, model) {
                                if(err){
                                    res.json({
