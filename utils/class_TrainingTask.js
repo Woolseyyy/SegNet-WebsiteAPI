@@ -91,41 +91,31 @@ var TrainingTask = {
         }
     },
     pop: function (gpu) {
-        var id = this.list.pop();
+        var that = this;
+        var id = that.list.pop();
         //run model training
         var trainPath = path.resolve(__dirname, '../models') + '/' + id + '/train/';
         var exec = require('child_process').exec;
-        var process = exec('caffe train -gpu ' + gpu + ' -solver ' + trainPath + 'solver.prototxt &> '+trainPath+'trainingProcedure.txt',
-            function(error, stdout, stderr){
-                if(error) {
-                    console.info('stderr : '+stderr);
-                    //send error
-                    //todo
-                }
-                else{
-                    //todo handle the stdout
-
-                    var pid = process.pid;
-                    //store the pid
-                    Model.findOne({id:id}, function (err, model) {
-                        if(err){
-                            console.error('Error when store pid of model ' + id +' ! : ' + err);
-                        }
-                        else{
-                            model.train.pid = pid;
-                            model.save(function (err, model) {
-                                if(err){
-                                    console.error('Error when store pid of model ' + id +' ! : ' + err);
-                                }
-                                else{
-                                    this.check();
-                                }
-                            })
-                        }
-                    })
-                }
+        var process = exec('caffe train -gpu ' + gpu + ' -solver ' + trainPath + 'solver.prototxt &> '+trainPath+'trainingProcedure.txt');
+        var pid = process.pid;
+        //store the pid
+        Model.findOne({id:id}, function (err, model) {
+            if(err){
+                console.error('Error when store pid of model ' + id +' ! : ' + err);
             }
-        );
+            else{
+                model.train.pid = pid;
+                model.save(function (err, model) {
+                    if(err){
+                        console.error('Error when store pid of model ' + id +' ! : ' + err);
+                    }
+                    else{
+                        that.check();
+                    }
+                })
+            }
+        })
+
     },
     run: function () {
         setInterval(this.check.bind(this), 60*60*1000);
