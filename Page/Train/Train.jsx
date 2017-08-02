@@ -12,6 +12,8 @@ import TextField from 'material-ui/TextField';
 import Paper from 'material-ui/Paper';
 import Dialog from 'material-ui/Dialog';
 
+import Head from '../../Common/Head/Head.jsx';
+
 
 class Train extends React.Component{
     constructor(props) {
@@ -113,41 +115,44 @@ class Train extends React.Component{
         const contentStyle = {margin: '0 16px'};
 
         return (
-            <div style={{width: '100%', maxWidth: 800, margin: 'auto'}}>
-                <Stepper linear={false} activeStep={stepIndex}>
-                    <Step>
-                        <StepButton onClick={() => this.setState({stepIndex: 0})}>
-                           创建训练模型
-                        </StepButton>
-                    </Step>
-                    <Step>
-                        <StepButton onClick={() => this.setState({stepIndex: 1})}>
-                            上传数据集
-                        </StepButton>
-                    </Step>
-                    <Step>
-                        <StepButton onClick={() => this.setState({stepIndex: 2})}>
-                            开始训练
-                        </StepButton>
-                    </Step>
-                    <Step>
-                        <StepButton onClick={() => this.setState({stepIndex: 3})}>
-                            查看训练进度
-                        </StepButton>
-                    </Step>
-                    <Step>
-                        <StepButton onClick={() => this.setState({stepIndex: 4})}>
-                            停止训练
-                        </StepButton>
-                    </Step>
-                    <Step>
-                        <StepButton onClick={() => this.setState({stepIndex: 5})}>
-                            完成训练
-                        </StepButton>
-                    </Step>
-                </Stepper>
-                <div style={contentStyle}>
-                    {this.getStepContent(stepIndex)}
+            <div>
+                <Head/>
+                <div style={{width: '100%', maxWidth: 800, margin: 'auto'}}>
+                    <Stepper linear={false} activeStep={stepIndex}>
+                        <Step>
+                            <StepButton onClick={() => this.setState({stepIndex: 0})}>
+                                创建训练模型
+                            </StepButton>
+                        </Step>
+                        <Step>
+                            <StepButton onClick={() => this.setState({stepIndex: 1})}>
+                                上传数据集
+                            </StepButton>
+                        </Step>
+                        <Step>
+                            <StepButton onClick={() => this.setState({stepIndex: 2})}>
+                                开始训练
+                            </StepButton>
+                        </Step>
+                        <Step>
+                            <StepButton onClick={() => this.setState({stepIndex: 3})}>
+                                查看训练进度
+                            </StepButton>
+                        </Step>
+                        <Step>
+                            <StepButton onClick={() => this.setState({stepIndex: 4})}>
+                                停止训练
+                            </StepButton>
+                        </Step>
+                        <Step>
+                            <StepButton onClick={() => this.setState({stepIndex: 5})}>
+                                完成训练
+                            </StepButton>
+                        </Step>
+                    </Stepper>
+                    <div style={contentStyle}>
+                        {this.getStepContent(stepIndex)}
+                    </div>
                 </div>
             </div>
         );
@@ -353,7 +358,8 @@ class UploadDataSet extends React.Component{
             res:{
                 title:'',
                 msg:''
-            }
+            },
+            waiting:false
         };
     }
     componentDidMount(){
@@ -363,6 +369,7 @@ class UploadDataSet extends React.Component{
         this.props.handlePrev();
     }
     handleNext(){
+        this.setState({waiting:true});
         let id = this.state.id,
             pwd = this.state.pwd,
             data = this.state.data,
@@ -465,6 +472,7 @@ class UploadDataSet extends React.Component{
                             processData: false,
                             contentType: false,
                             success: (res)=>{
+                                this.setState({waiting:false});
                                 //res = JSON.parse(res);
                                 switch (res.code){
                                     case 200:{
@@ -507,6 +515,7 @@ class UploadDataSet extends React.Component{
                         });
                     }
                     else{
+                        this.setState({waiting:false});
                         if(!error){
                             let res = {
                                 title:'上传成功',
@@ -659,6 +668,17 @@ class UploadDataSet extends React.Component{
                     />
                 </div>
                 {Dialogs}
+                {
+                    (this.state.waiting)?
+                        <div className="waiting">
+                            <div className="la-square-jelly-box square-center" >
+                                <div></div>
+                                <div></div>
+                            </div>
+                            <h2>数据上传中...</h2>
+                        </div>
+                        :null
+                }
             </div>
         );
     }
@@ -856,7 +876,7 @@ class WatchTrain extends React.Component{
         };
     }
     componentDidMount(){
-        setInterval(this.latest.bind(this), 30*1000);
+        setInterval(this.latest.bind(this), 10*1000);
     }
     handlePrev(){
         this.props.handlePrev();
