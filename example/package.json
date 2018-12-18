@@ -1,45 +1,12 @@
 {
-<<<<<<< HEAD
-  "name": "segnetapi",
-  "version": "0.0.0",
-  "private": true,
-  "scripts": {
-    "start": "node ./bin/www"
-  },
-  "dependencies": {
-    "body-parser": "~1.17.1",
-    "cookie-parser": "~1.4.3",
-    "debug": "~2.6.3",
-    "ejs": "~2.5.6",
-    "express": "~4.15.2",
-    "mongoose": "^4.11.2",
-    "morgan": "~1.8.1",
-    "multiparty": "^4.1.3",
-    "serve-favicon": "~2.4.2"
-=======
-  "name": "sunboom-eams",
+  "name": "Segmentation",
   "version": "1.0.0",
-  "description": "Education Administration Managing System for Zhejiang University",
+  "description": "Demo website for segnet api",
   "scripts": {
     "start": "webpack-dev-server --hot --progress --colors",
     "build": "webpack"
   },
-  "repository": {
-    "type": "git",
-    "url": "git+https://github.com/Sunboom/Sunboom-EAMS.git"
-  },
-  "keywords": [
-    "education",
-    "administration",
-    "managing",
-    "system"
-  ],
-  "author": "sunboom",
   "license": "MIT",
-  "bugs": {
-    "url": "https://github.com/Sunboom/Sunboom-EAMS/issues"
-  },
-  "homepage": "https://github.com/Sunboom/Sunboom-EAMS#readme",
   "devDependencies": {
     "babel-core": "^6.24.1",
     "babel-loader": "^6.4.1",
@@ -66,6 +33,5 @@
     "react-tap-event-plugin": "^2.0.1",
     "react-textarea-autosize": "^4.3.2",
     "zepto": "^1.2.0"
->>>>>>> Segmentation/master
   }
 }
