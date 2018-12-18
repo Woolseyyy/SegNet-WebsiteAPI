@@ -1,0 +1,27 @@
+.text{
+    letter-spacing: 1px;
+    color: #666666;
+    margin-top: 50px;
+    margin-bottom: 10px;
+}
+
+.primary-text{
+    color: #00bcd4;
+    font-size: 20px;
+    letter-spacing: 1px;
+}
+
+.file-hint{
+    display: inline-block;
+    margin-left: 20px;
+    color: #666666;
+}
+
+.keep-ask-window{
+    margin: 10px 0;
+    color: #666;
+    font-size: 12px;
+    padding: 10px;
+    border-radius: 3px;
+    background: #e8e8e8;
+}
